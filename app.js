@@ -19,19 +19,18 @@ var channel_id = process.env.CHANNEL_ID;
 
 
 
-
 // Handle Events API events
-app.get('/events', function(req, res){
-
+app.post('/events', function(req, res){
   if(req.body.challenge) {
     // Respond to the challenge
     res.send({"challenge": req.body.challenge});
 
   } else {
     // Store details about the user
+    console.log(req.body.event);
     var evt = req.body.event;
     var user_id = evt.user.id;
-    var user_name = evt.user.real_name_normalized;
+    var user_name = evt.user.profile.real_name_normalized; 
     var status_text = evt.user.profile.status_text;
     var status_emoji = evt.user.profile.status_emoji;
 
@@ -77,11 +76,11 @@ function postUpdate(attachments) {
   var data = {
     "token": api_token,
     "channel": channel_id,
-    "text": JSON.stringify(attachments),
+    "attachments": JSON.stringify(attachments),
     "pretty": true
   };
   request.post(
-    "https://slack.com/api/chat.postmessage",
+    "https://slack.com/api/chat.postMessage",
     {
       form: data
     },
@@ -98,6 +97,7 @@ function postUpdate(attachments) {
 }
 
 // Listen for requests
-var listener = app.listener(process.env.PORT, function () {
+
+var listener = app.listen(process.env.PORT, function () {
   console.log('App is listening on port ' + listener.address().port);
 });
